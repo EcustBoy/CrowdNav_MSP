@@ -1,0 +1,1 @@
+{"success rate": 1.0, "collision rate": 0.0, "nav time": 10.885, "total reward": 0.3260685249123237, "danger frequency": 0.4115755627009646, "distance in danger": 0.15736495455040442}
