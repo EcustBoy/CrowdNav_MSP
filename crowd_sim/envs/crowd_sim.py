@@ -8,6 +8,8 @@ from numpy.linalg import norm
 from crowd_sim.envs.utils.human import Human
 from crowd_sim.envs.utils.info import *
 from crowd_sim.envs.utils.utils import point_to_segment_dist
+from crowd_sim.envs.utils.human_lb import HumanLB
+
 
 
 class CrowdSim(gym.Env):
@@ -49,6 +51,7 @@ class CrowdSim(gym.Env):
         self.attention_weights = None
         ###
         self.domain_settings = None
+        self.randomize_goal = None
 
     def configure(self, config):
         self.config = config
@@ -102,6 +105,31 @@ class CrowdSim(gym.Env):
             self.humans = []
             for i in range(human_num):
                 self.humans.append(self.generate_circle_crossing_human())
+
+        elif rule == 'corr' :
+            self.humans = []
+            self.generate_corr_humans() 
+
+        elif rule == 'corr-o' :
+            self.humans = []
+            self.generate_corr_oneway__humans()    
+        
+        elif rule == 'lanes' :
+            self.humans = []
+            self.generate_lanes_humans() 
+         
+        elif rule == 'tri-td' :
+            self.humans = []
+            self.generate_tri_humans() 
+        
+        elif rule == 'line-td' :
+            self.humans = []
+            self.generate_ld_humans()
+
+        elif rule == 'line' :
+            self.humans = []
+            self.generate_ldl_humans() 
+
         elif rule == 'mixed':
             # mix different raining simulation with certain distribution
             static_human_num = {0: 0.05, 1: 0.2, 2: 0.2, 3: 0.3, 4: 0.1, 5: 0.15}
@@ -154,8 +182,165 @@ class CrowdSim(gym.Env):
         else:
             raise ValueError("Rule doesn't exist")
 
-    def generate_circle_crossing_human(self):
+    def generate_corr_humans(self) :
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            sign = -1 if i % 2 == 0 else 1 
+            while True:
+                horizontal_shift = (np.random.normal(scale=0.2)) * 4
+                vertical_shift = (np.random.normal(scale=0.2)) * 2
+                px = horizontal_shift
+                py = sign * 4  + vertical_shift
+                collide = False
+                for agent in [self.robot] + self.humans:
+                    if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
+                        collide = True
+                        break
+                if not collide:
+                    break
+            gx = horizontal_shift + np.random.normal()
+            gy = -sign * 4 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human)
+
+    def generate_corr_onewady__humans(self) :
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            while True:
+                horizontal_shift_sp = (np.random.rand() - 0.5) * 4.5
+                vertical_shift_sp = (np.random.rand() - 0.5) * 2
+                px = horizontal_shift_sp
+                py = 4  + vertical_shift_sp
+                collide = False
+                for agent in [self.robot] + self.humans:
+                    if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
+                        collide = True
+                        break
+                if not collide:
+                    break
+            horizontal_shift_g = (np.random.rand() - 0.5) * 4.5
+            vertical_shift_g = (np.random.rand() - 0.5) * 2
+            
+            gx = horizontal_shift_g 
+            gy = -4 + vertical_shift_g 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human)
+    
+    def generate_corr_oneway__humans(self) :
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            while True:
+                horizontal_shift_sp = (np.random.rand() - 0.5) * 4.5
+                vertical_shift_sp = (np.random.rand() - 0.5) * 2
+                px = horizontal_shift_sp
+                py = 4  + vertical_shift_sp
+                collide = False
+                for agent in [self.robot] + self.humans:
+                    if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
+                        collide = True
+                        break
+                if not collide:
+                    break
+            horizontal_shift_g = (np.random.rand() - 0.5) + horizontal_shift_sp
+            vertical_shift_g = (np.random.rand() - 0.5) * 2
+            
+            gx = horizontal_shift_g 
+            gy = -4 + vertical_shift_g 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human)
+
+    def generate_tri_humans(self) :
         human = Human(self.config, 'humans')
+        human.set(0, 4.1, 0, -4, 0, 0, 0)
+        self.humans.append(human)
+        vertical_shift = 0.3
+        hor_pos = 0
+        dist_between_humans = (2 * 0.3  + self.discomfort_dist + 0.1)
+        for i in range(self.human_num-1) :
+            human = Human(self.config, 'humans')
+            sign = -1 if i % 2 == 0 else 1 
+            if i % 2 == 0 :
+                vertical_shift += 0.4
+                hor_pos += 1
+            
+            horizontal_shift = sign * hor_pos * dist_between_humans
+            
+            px = horizontal_shift
+            py = 4  + vertical_shift
+
+            for agent in [self.robot] + self.humans:
+                assert(norm((px - agent.px, py - agent.py)) > human.radius + agent.radius + self.discomfort_dist)
+            gx = horizontal_shift
+            gy = -4 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human)
+    
+    def generate_ld_humans(self) :
+        dist_between_humans = (2 * 0.3  + self.discomfort_dist + 0.1)
+        lane_size = self.human_num * dist_between_humans
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            
+            horizontal_shift = -lane_size/2 + (i * dist_between_humans)
+            px = horizontal_shift
+            py = 4 
+            collide = False
+            for agent in [self.robot] + self.humans:
+                assert(norm((px - agent.px, py - agent.py)) > human.radius + agent.radius + self.discomfort_dist)
+            gx = horizontal_shift 
+            gy = -4 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human) 
+    
+    def generate_ldl_humans(self) :
+        dist_between_humans = (2 * 0.3  + self.discomfort_dist + 0.1)
+        lane_size = self.human_num * dist_between_humans
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            
+            horizontal_shift = -lane_size/2 + (i * dist_between_humans)
+            py = horizontal_shift
+            px = 4.5
+            collide = False
+            for agent in [self.robot] + self.humans:
+                assert(norm((px - agent.px, py - agent.py)) > human.radius + agent.radius + self.discomfort_dist)
+            gy = horizontal_shift 
+            gx = -4 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human) 
+
+    def generate_lanes_humans(self) :
+        for i in range(self.human_num) :
+            human = Human(self.config, 'humans')
+            sign = -1 if i % 2 == 0 else 1 
+            if i in range(5) :
+                    px = 0
+                    py = -4 + (i+1) * (8/6)
+                    human.set(px, py, px, py, 0, 0, 0)
+                    self.humans.append(human)
+                    continue
+
+            while True:
+                px = sign * (np.random.rand()) * 4
+                vertical_shift = -sign * (np.random.rand()-0.3) * 6 
+                py = sign * 4  + vertical_shift
+                collide = False
+                for agent in [self.robot] + self.humans:
+                    if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
+                        collide = True
+                        break
+                if not collide:
+                    break
+            gx = px + np.random.normal(scale=0.2)
+            gy = -sign * (4  - vertical_shift) 
+            human.set(px, py, gx, gy, 0, 0, 0)
+            self.humans.append(human)
+            
+
+    def generate_circle_crossing_human(self, lb=False):
+        human = Human(self.config, 'humans')
+        if lb :
+            human = HumanLB(self.config, 'humans')
         if self.randomize_attributes:
             human.sample_random_attributes()
         while True:
@@ -174,7 +359,14 @@ class CrowdSim(gym.Env):
                     break
             if not collide:
                 break
-        human.set(px, py, -px, -py, 0, 0, 0)
+        gx, gy = -px, -py
+        if self.randomize_goal is not None :
+            angle_shift = (np.random.rand() * self.randomize_goal) - self.randomize_goal/2
+            angle_goal = angle + np.pi + angle_shift
+            gx = self.circle_radius * np.cos(angle_goal) + px_noise
+            gy = self.circle_radius * np.sin(angle_goal) + py_noise
+
+        human.set(px, py, gx, gy, 0, 0, 0)
         return human
 
     def generate_square_crossing_human(self):
@@ -265,17 +457,17 @@ class CrowdSim(gym.Env):
             self.human_times = [0] * self.human_num
         else:
             self.human_times = [0] * (self.human_num if self.robot.policy.multiagent_training else 1)
-        if not self.robot.policy.multiagent_training:
-            self.train_val_sim = 'circle_crossing'
+        #if not self.robot.policy.multiagent_training:
+        #    self.train_val_sim = 'circle_crossing'
 
         if self.config.get('humans', 'policy') == 'trajnet':
             raise NotImplementedError
         else:
             counter_offset = {'train': self.case_capacity['val'] + self.case_capacity['test'],
                               'val': 0, 'test': self.case_capacity['val']}
-            self.robot.set(0, -self.circle_radius, 0, self.circle_radius, 0, 0, np.pi / 2)
+            self.robot.set(0, -self.circle_radius,0 , self.circle_radius, 0, 0, np.pi / 2)
             if self.case_counter[phase] >= 0:
-                np.random.seed(counter_offset[phase] + self.case_counter[phase])
+                #np.random.seed(counter_offset[phase] + self.case_counter[phase])
                 if phase in ['train', 'val']:
                     human_num = self.human_num if self.robot.policy.multiagent_training else 1
                     self.generate_random_human_position(human_num=human_num, rule=self.train_val_sim)
