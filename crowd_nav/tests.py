@@ -63,10 +63,10 @@ if not os.path.exists(output_path) :
     os.makedirs(output_path)
 
 if __name__ == "__main__":
-    mods = {'neighbor_dist' : 1, 'max_neighbors' : 1, 'time_horizon' : 10, 'max_speed' : 1}
-    #env.modify_domain(mods)
+    mods = {'neighbor_dist' : 0, 'max_neighbors' : 0, 'time_horizon' : 1, 'max_speed' : 10}
+    env.modify_domain(mods)
     #env.circle_radius = 8
-    env.human_num = 10
-    env.test_sim = 'corr-o'
+    env.human_num = 5
+    env.test_sim = 'circle_crossing'
     explorer.run_k_episodes(1, 'test', output_info=True)
     env.render('video')

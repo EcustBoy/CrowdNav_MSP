@@ -52,6 +52,7 @@ class CrowdSim(gym.Env):
         ###
         self.domain_settings = None
         self.randomize_goal = None
+        
 
     def configure(self, config):
         self.config = config
@@ -106,18 +107,31 @@ class CrowdSim(gym.Env):
             for i in range(human_num):
                 self.humans.append(self.generate_circle_crossing_human())
 
-        elif rule == 'corr' :
+        # humans move vertically, half go up ad the other half go down 
+        elif rule == 'cm_hall' :
             self.humans = []
-            self.generate_corr_humans() 
+            self.generate_cmhall_humans() 
 
-        elif rule == 'corr-o' :
+        # humans moce vertically, all of them go down, starting positions is random in a rectangle around
+        # the goal
+        elif rule == 'cm_hall_oneway' :
             self.humans = []
-            self.generate_corr_oneway__humans()    
+            self.generate_cmhallow__humans()
+
+        elif rule == 'cm_hall_oneway_horizontal' :
+            self.humans = []
+            self.generate_cmhallow__humans(horizontal=True)
         
+        # elif rule == 'corr-o-i' :
+        #     self.humans = []
+        #     self.generate_corr_oneway__humans()    
+        
+        # two lanes, one goiung down the other going up, sperated by humans
         elif rule == 'lanes' :
             self.humans = []
             self.generate_lanes_humans() 
          
+         #...
         elif rule == 'tri-td' :
             self.humans = []
             self.generate_tri_humans() 
@@ -182,7 +196,10 @@ class CrowdSim(gym.Env):
         else:
             raise ValueError("Rule doesn't exist")
 
-    def generate_corr_humans(self) :
+    def generate_cmhall_humans(self) :
+        """
+        generates vertically moving humans 
+        """
         for i in range(self.human_num) :
             human = Human(self.config, 'humans')
             sign = -1 if i % 2 == 0 else 1 
@@ -190,7 +207,10 @@ class CrowdSim(gym.Env):
                 horizontal_shift = (np.random.normal(scale=0.2)) * 4
                 vertical_shift = (np.random.normal(scale=0.2)) * 2
                 px = horizontal_shift
-                py = sign * 4  + vertical_shift
+                if sign > 0 :
+                    py = sign * 4  + vertical_shift
+                if sign <0 :
+                    py = -4 - 1.5 + vertical_shift
                 collide = False
                 for agent in [self.robot] + self.humans:
                     if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
@@ -203,7 +223,7 @@ class CrowdSim(gym.Env):
             human.set(px, py, gx, gy, 0, 0, 0)
             self.humans.append(human)
 
-    def generate_corr_onewady__humans(self) :
+    def generate_cmhallow2__humans(self) :
         for i in range(self.human_num) :
             human = Human(self.config, 'humans')
             while True:
@@ -221,19 +241,23 @@ class CrowdSim(gym.Env):
             horizontal_shift_g = (np.random.rand() - 0.5) * 4.5
             vertical_shift_g = (np.random.rand() - 0.5) * 2
             
-            gx = horizontal_shift_g 
+            gx = horizontal_shift_g + horizontal_shift_sp
             gy = -4 + vertical_shift_g 
             human.set(px, py, gx, gy, 0, 0, 0)
             self.humans.append(human)
-    
-    def generate_corr_oneway__humans(self) :
+
+    def generate_cmhallow__humans(self, horizontal=False) :
         for i in range(self.human_num) :
             human = Human(self.config, 'humans')
             while True:
                 horizontal_shift_sp = (np.random.rand() - 0.5) * 4.5
                 vertical_shift_sp = (np.random.rand() - 0.5) * 2
-                px = horizontal_shift_sp
-                py = 4  + vertical_shift_sp
+                if horizontal :
+                    py = horizontal_shift_sp
+                    px = 4.5  + vertical_shift_sp
+                else :
+                    px = horizontal_shift_sp
+                    py = 4  + vertical_shift_sp
                 collide = False
                 for agent in [self.robot] + self.humans:
                     if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
@@ -241,13 +265,43 @@ class CrowdSim(gym.Env):
                         break
                 if not collide:
                     break
-            horizontal_shift_g = (np.random.rand() - 0.5) + horizontal_shift_sp
+            
+            horizontal_shift_g = (np.random.rand() - 0.5) * 4.5
             vertical_shift_g = (np.random.rand() - 0.5) * 2
             
-            gx = horizontal_shift_g 
-            gy = -4 + vertical_shift_g 
+            if horizontal :
+                gy = horizontal_shift_sp
+                gx = -4 + vertical_shift_g
+            else :
+                gx = horizontal_shift_sp
+                gy = -4 + vertical_shift_g 
             human.set(px, py, gx, gy, 0, 0, 0)
             self.humans.append(human)
+
+    
+    
+    # def generate_corr_oneway__humans(self) :
+    #     for i in range(self.human_num) :
+    #         human = Human(self.config, 'humans')
+    #         while True:
+    #             horizontal_shift_sp = (np.random.rand() - 0.5) * 8
+    #             vertical_shift_sp = (np.random.rand() - 0.5) * 2
+    #             px = horizontal_shift_sp
+    #             py = 4  + vertical_shift_sp
+    #             collide = False
+    #             for agent in [self.robot] + self.humans:
+    #                 if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
+    #                     collide = True
+    #                     break
+    #             if not collide:
+    #                 break
+    #         horizontal_shift_g = (np.random.rand() - 0.5) + horizontal_shift_sp
+    #         vertical_shift_g = (np.random.rand() - 0.5) * 2
+            
+    #         gx = horizontal_shift_g 
+    #         gy = -4 + vertical_shift_g 
+    #         human.set(px, py, gx, gy, 0, 0, 0)
+    #         self.humans.append(human)
 
     def generate_tri_humans(self) :
         human = Human(self.config, 'humans')

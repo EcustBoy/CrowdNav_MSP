@@ -1,0 +1,9 @@
+2020-10-15 05:33:21, INFO: Current git head hash code: %s
+2020-10-15 05:33:21, INFO: Using device: cpu
+2020-10-15 05:33:21, INFO: Policy: SARL w/ global state
+2020-10-15 05:33:21, INFO: human number: 9
+2020-10-15 05:33:21, INFO: Not randomize human's radius and preferred speed
+2020-10-15 05:33:21, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2020-10-15 05:33:21, INFO: Square width: 10.0, circle width: 4.0
+2020-10-15 05:33:21, INFO: Started imitation learning. Weights saved.
+2020-10-15 05:33:21, INFO: Current learning rate: 0.010000

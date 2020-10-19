@@ -45,7 +45,8 @@ def main():
         shutil.copy(args.policy_config, args.output_dir)
         shutil.copy(args.train_config, args.output_dir)
     log_file = os.path.join(args.output_dir, 'output.log')
-    il_weight_file = os.path.join(args.output_dir, 'il_model.pth')
+    # os.path.join(args.output_dir, 'il_model.pth')
+    il_weight_file = 'data/output/il_model.pth'
     rl_weight_file = os.path.join(args.output_dir, 'rl_model.pth')
 
     # configure logging
