@@ -122,10 +122,6 @@ class CrowdSim(gym.Env):
             self.humans = []
             self.generate_cmhallow__humans(horizontal=True)
         
-        # elif rule == 'corr-o-i' :
-        #     self.humans = []
-        #     self.generate_corr_oneway__humans()    
-        
         # two lanes, one goiung down the other going up, sperated by humans
         elif rule == 'lanes' :
             self.humans = []
@@ -202,7 +198,10 @@ class CrowdSim(gym.Env):
         """
         for i in range(self.human_num) :
             human = Human(self.config, 'humans')
-            sign = -1 if i % 2 == 0 else 1 
+            if np.random.random() > 0.5:
+                sign = -1
+            else:
+                sign = 1
             while True:
                 horizontal_shift = (np.random.normal(scale=0.2)) * 4
                 vertical_shift = (np.random.normal(scale=0.2)) * 2
@@ -307,7 +306,7 @@ class CrowdSim(gym.Env):
         human = Human(self.config, 'humans')
         human.set(0, 4.1, 0, -4, 0, 0, 0)
         self.humans.append(human)
-        vertical_shift = 0.3
+        vertical_shift = 0
         hor_pos = 0
         dist_between_humans = (2 * 0.3  + self.discomfort_dist + 0.1)
         for i in range(self.human_num-1) :

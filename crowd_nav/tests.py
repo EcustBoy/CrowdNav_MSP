@@ -63,10 +63,30 @@ if not os.path.exists(output_path) :
     os.makedirs(output_path)
 
 if __name__ == "__main__":
-    mods = {'neighbor_dist' : 0, 'max_neighbors' : 0, 'time_horizon' : 1, 'max_speed' : 10}
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--layout', type=str,
+                        help='Humans layout, default=circle_crossing',
+                        default='circle_crossing')
+    parser.add_argument('-n', '--number', type=int,
+                        help='The number of humans, default=10',
+                        default=10)
+    parser.add_argument('-r', '--render', type=str,
+                        help='The render mode (video or traj), default=video',
+                        default='video')
+    parser.add_argument('-t', '--timeh', type=int,
+                        help='The time horizon of the orca policy, default=5',
+                        default=5)
+    parser.add_argument('-m', '--maxn', type=int,
+                        help='The maximum neighbor param of the orca policy, default=10',
+                        default=10)
+    parser.add_argument('-nd', '--neighd', type=int,
+                        help='The neighbor distance param of the orca policy, default=10',
+                        default=10)
+    args = parser.parse_args()
+    mods = {'neighbor_dist' : args.neighd, 'max_neighbors' : args.maxn, 'time_horizon' : args.timeh, 'max_speed' : 1}
     env.modify_domain(mods)
-    #env.circle_radius = 8
-    env.human_num = 5
-    env.test_sim = 'circle_crossing'
+    env.human_num = args.number
+    env.test_sim = args.layout
     explorer.run_k_episodes(1, 'test', output_info=True)
-    env.render('video')
+    env.render(args.render)
