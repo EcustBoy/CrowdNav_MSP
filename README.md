@@ -3,13 +3,15 @@ Based on https://github.com/vita-epfl/CrowdNav
 To test the enviorements, run `crowdnav/tests.py` :
 
 ```shell
-usage: tests.py [-h] [-l LAYOUT] [-n NUMBER] [-r RENDER] [-t TIMEH] [-m MAXN]
-                [-nd NEIGHD]
+usage: tests.py [-h] [-l LAYOUT] [-p POLICY] [-n NUMBER] [-r RENDER]
+                [-t TIMEH] [-m MAXN] [-nd NEIGHD] [-s SIGMA] [-v V0] [-ta TAU]
 
 optional arguments:
   -h, --help            show this help message and exit
   -l LAYOUT, --layout LAYOUT
                         Humans layout, default=circle_crossing
+  -p POLICY, --policy POLICY
+                        Human policy (orca or socialforce
   -n NUMBER, --number NUMBER
                         The number of humans, default=10
   -r RENDER, --render RENDER
@@ -21,6 +23,11 @@ optional arguments:
   -nd NEIGHD, --neighd NEIGHD
                         The neighbor distance param of the orca policy,
                         default=10
+  -s SIGMA, --sigma SIGMA
+                        The sigma param of the socialforce policy, default=0.3
+  -v V0, --v0 V0        The v0 param of the socialforce policy, default=2.1
+  -ta TAU, --tau TAU    The tau param of the socialforce policy, default=0.5
+
 ```
 
 Short description of the layouts : 
@@ -35,8 +42,13 @@ Short description of the layouts :
 
 To modify those layouts, look into the respective functions that generate the humans in the simulation file `crowd_sim/envs/crowd_sim.py` called in lines 101 to 193
 
-First results on shifting the domain :
+First results on shifting the domain by modifying orca params one at a time:
 
-![Alt text](/crowd_nav/data/domain_tests/individual_shifts/individual_shifts_plot.png "Optional Title")
+![Alt text](/crowd_nav/data/domain_tests/individual_shifts/individual_shifts_plot.png)
 
 As we can see, little to no changes in robot performances with only individual orca policy changes at a time
+
+Same but with socialforce policy :
+
+![Alt text](/crowd_nav/data/domain_tests/sf_individual_shifts/indsh.png)
+
