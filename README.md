@@ -1,5 +1,7 @@
 Based on https://github.com/vita-epfl/CrowdNav
 
+To use the `socialforce` policy you need to install https://github.com/svenkreiss/socialforce
+
 To test the enviorements, run `crowdnav/tests.py` :
 
 ```shell
