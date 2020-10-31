@@ -1,4 +1,13 @@
+(Ongoing work)
+
 Based on https://github.com/vita-epfl/CrowdNav
+
+TODO :
+- OOD detection for detecting scenarios where robot might perform poorly during deployement (test-time) :
+  - [Contrastive Training for ImprovedOut-of-Distribution Detection](https://arxiv.org/pdf/2007.05566.pdf)
+  - [Uncertainty-Based Out-of-Distribution Classification in Deep Reinforcement Learning ](https://arxiv.org/pdf/2001.00496.pdf)
+- Self-supervised learning to give the possibility for the robot to learn during deployement (test-time)
+  - [Self-Supervised Policy Adaptation during Deployment](https://arxiv.org/pdf/2007.04309.pdf)
 
 To use the `socialforce` policy you need to install https://github.com/svenkreiss/socialforce
 
