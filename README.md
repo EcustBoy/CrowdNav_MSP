@@ -2,6 +2,11 @@
 
 Based on [Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning](https://arxiv.org/abs/1809.08835)
 
+Deep reinforcement learning (RL) has been a promising approach for intelligent moving agents, like self-driving vehicles and delivery robots, to learn socially-aware navigation in dense crowds. Yet, existing methods are often vulnerable to distributional shifts. In this project, we will study how to enable an RL agent to reliably detect and adapt to out-of-distribution (OoD) scenarios at test time. The project involves the following main tasks:
+1. Extend the crowd-nav simulation environment to a multi-domain setting 
+2. Implement and examine classical OoD detection methods 
+3. Explore self-supervised learning techniques for OoD detection and test-time adaptation 
+
 TODO :
 - OOD detection for detecting scenarios where robot might perform poorly during deployement (test-time) :
   - [Contrastive Training for ImprovedOut-of-Distribution Detection](https://arxiv.org/pdf/2007.05566.pdf)
