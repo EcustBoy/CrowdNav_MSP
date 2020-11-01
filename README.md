@@ -1,6 +1,6 @@
 (Ongoing work)
 
-Based on https://github.com/vita-epfl/CrowdNav
+Based on [Crowd-Robot Interaction: Crowd-aware Robot Navigation with Attention-based Deep Reinforcement Learning](https://arxiv.org/abs/1809.08835)
 
 TODO :
 - OOD detection for detecting scenarios where robot might perform poorly during deployement (test-time) :
